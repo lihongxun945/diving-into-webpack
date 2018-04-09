@@ -35,14 +35,14 @@
 ```js
 module.exports.pitch = function (request) {
     return [
-        "var content = require(" + loaderUtils.stringifyRequest(this, "!!" + request) + ");”, // 获取 CSS 文件的内容
+        "var content = require(" + loaderUtils.stringifyRequest(this, "!!" + request) + ");", // 获取 CSS 文件的内容
         "if(typeof content === 'string') content = [[module.id, content, '']];",
-        "// Prepare cssTransformation”,// 省略无关内容
+        "// Prepare cssTransformation",// 省略无关内容
         "// add the styles to the DOM",
-        "var update = require(" + loaderUtils.stringifyRequest(this, "!" + path.join(__dirname, "lib", "addStyles.js")) + ")(content, options);”, // 调用 addStyles ，把CSS内容插入到DOM中去
-        "if(content.locals) module.exports = content.locals;”, // 支持 css modules，如果启用了 css modules，class的映射就放在 content.locals 中，因此直接默认导出，我们 import 的时候就会得到一个映射字典。
+        "var update = require(" + loaderUtils.stringifyRequest(this, "!" + path.join(__dirname, "lib", "addStyles.js")) + ")(content, options);", // 调用 addStyles ，把CSS内容插入到DOM中去
+        "if(content.locals) module.exports = content.locals;", // 支持 css modules，如果启用了 css modules，class的映射就放在 content.locals 中，因此直接默认导出，我们 import 的时候就会得到一个映射字典。
         options.hmr ? hmrCode : ""
-    ].join("\n”);
+    ].join("\n");
 }
 ```
 
@@ -105,7 +105,7 @@ module.exports = function (content) {
 下面解析一下 css-loader 是如何工作的。首先，css-loader 就不是一个 pitching loader 了，因为如果我们有 `less-loader` ，它会把 less 代码编译成 css代码，并传给 css-loader，所以用默认的模式就可以了。
 
 那么为什么要有 `css-loader` 呢？，从两个方便解释：
-1. `style-loader` 中调用了 `require` 去加载css文件，如果我们不用一个 `css-loader`，那么这里会直接报错 “没有css文件对应的loader”
+1. `style-loader` 中调用了 `require` 去加载css文件，如果我们不用一个 `css-loader`，那么这里会直接报错 “没有css文件对应的loader"
 2. `style-loader` 只负责插入CSS，那么CSS中的 `@import` 和 `url` 语句还是需要 `css-loader` 去解析的。
 3. 另外，modules 等也是在 css-loader 上实现的
 
@@ -135,8 +135,8 @@ body {
 ```
 
  css-loader 会执行两次，因为有两个文件，每一个css文件的处理，比如 `style.css` 的处理会包括两部分：
-1. 把 `@import` 替换成 `require("-!../node_modules/css-loader/index.js!./global.css”)`， `-!` 语法会禁用掉 preLoader 和 loader，因此这一个require并不会递归调用自己。
-2. 把 `background-image: url('./avatar.jpeg’)` 替换成 `"background-image: url(" + require("./avatar.jpeg") + “)”`，图片的处理比较简单，因为如何加载图片，这是另一个loader的事情，`css-loader` 不负责这部分，他只需要关心把 `url` 转换成 `require` 就可以了。
+1. 把 `@import` 替换成 `require("-!../node_modules/css-loader/index.js!./global.css")`， `-!` 语法会禁用掉 preLoader 和 loader，因此这一个require并不会递归调用自己。
+2. 把 `background-image: url('./avatar.jpeg’)` 替换成 `"background-image: url(" + require("./avatar.jpeg") + “)"`，图片的处理比较简单，因为如何加载图片，这是另一个loader的事情，`css-loader` 不负责这部分，他只需要关心把 `url` 转换成 `require` 就可以了。
 简单的概括，就是把这两种CSS内部的依赖，替换成 JS 的语法 `require`，这样webpack就能正确处理了。
 
 
@@ -145,7 +145,7 @@ body {
 ```js
 exports = module.exports = require("../node_modules/css-loader/lib/css-base.js")(undefined); // 这里其实返回了一个数组。
 // imports
-exports.i(require("-!../node_modules/css-loader/index.js!./global.css"), "”); //对另一个CSS文件的依赖
+exports.i(require("-!../node_modules/css-loader/index.js!./global.css"), ""); //对另一个CSS文件的依赖
 
 // module
 //想默认导出的数组中加入了一个数组，分别存了 `module.id` 和 css的内容
@@ -169,7 +169,7 @@ exports = module.exports = require("../node_modules/css-loader/lib/css-base.js")
 这里返回的是一个数组，并且定义了 `i` 方法可以添加依赖模块，以及重置了 `toString`方法默认返回css内容。
 
 ```js
-exports.i(require("-!../node_modules/css-loader/index.js!./global.css"), "”);
+exports.i(require("-!../node_modules/css-loader/index.js!./global.css"), "");
 ```
 `i` 方法其实就是把一个CSS模块push到数组中，因为这里我们的 `style.css` 依赖 `global.css` 所以需要加入这个依赖
 
@@ -183,7 +183,7 @@ exports.locals = {
     "avatar": "_2cO19opl9mOimp5NKYGn-L"
 }
 ```
-在 `style-loader` 中也提到过了，如果启用了 css modules，那么我们就需要一个 classname的映射表，因此这里直接放在 `exports.locals` 中，传给 `style-loader`，而 `style-loader` 发现有 `locals` 就会默认导出它。最终我们 `import styles from “styles.css”` 的时候就得到了这个 `locals` 映射表。
+在 `style-loader` 中也提到过了，如果启用了 css modules，那么我们就需要一个 classname的映射表，因此这里直接放在 `exports.locals` 中，传给 `style-loader`，而 `style-loader` 发现有 `locals` 就会默认导出它。最终我们 `import styles from “styles.css"` 的时候就得到了这个 `locals` 映射表。
 
 这四段代码执行完之后，exports 就变成了这样：
 
@@ -234,14 +234,14 @@ var parserPlugin = postcss.plugin("css-loader-parser", function(options) {
                 case "nested-item":
                     item.nodes.forEach(processNode);
                     break;
-                case "item”:
+                case "item":
                     // 这一块没太懂，因为如果是 `@import ‘xxx.css’` 其实并不是在这里处理的，而是在 上面的 css.walkAtRule 就处理了
                     var importIndex = imports["$" + item.name];
                     if (typeof importIndex === "number") {
                         item.name = "___CSS_LOADER_IMPORT___" + importIndex + "___";
                     }
                     break;
-                case "url”:
+                case "url":
                     // 如果是一个url，比如 `background-image: url(./xxx.png)` 那么 就把 这个依赖记录到 urlItems 中，同时把 `xxx.png` 替换成一个 占位符 `___CSS_LOADER_URL___i___`
                     if (options.url && item.url.replace(/\s/g, '').length && !/^#/.test(item.url) && (isAlias(item.url) || loaderUtils.isUrlRequest(item.url, options.root))) {
                         // Don't remove quotes around url when contain space
@@ -287,7 +287,7 @@ var parserPlugin = postcss.plugin("css-loader-parser", function(options) {
 ```js
 // processCss 已经解析出了依赖，那么在这里我们就要把这些依赖替换成 `require` ，这样webpack就能处理了。
 processCss(content, map, {
-        mode: moduleMode ? "local" : "global”, // 是否启用 css modules
+        mode: moduleMode ? "local" : "global", // 是否启用 css modules
          // 省略...
     }, function(err, result) {
         if(err) return callback(err);

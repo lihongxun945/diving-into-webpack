@@ -235,6 +235,6 @@ require("babel-core").transform("code", {
 });
 ```
 
-那么我们只要在 上面我们写的 `bable-loader` 的代码中加入一行 `plugins: ["transform-react-jsx”]` 就可以支持 jsx 的编译了，是不是很简单。
+那么我们只要在 上面我们写的 `bable-loader` 的代码中加入一行 `plugins: ["transform-react-jsx"]` 就可以支持 jsx 的编译了，是不是很简单。
 
 react 因为用的JSX，而jsx 因为全部编译成了JS 所以它的loader很简单。但是 Vue 的组件并不是可以直接就全部编译成JS，而是包括了 html,JS,CSS三部分，所以 `vue-loader` 相对来说就复杂很多了。
