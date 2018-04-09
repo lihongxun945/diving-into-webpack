@@ -326,4 +326,4 @@ this.plugin("render", (bootstrapSource, chunk, hash, moduleTemplate, dependencyT
 
 一个典型的compilation对象如下：
 
-![compilation](compilation)
+![compilation](./images/compilation.png)
