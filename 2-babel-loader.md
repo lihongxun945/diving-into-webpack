@@ -166,7 +166,7 @@ import People from './people'
 
 const lily = new People('Lily')
 lily.sayName()
-``
+```
 
 那么我们需要怎么做处理呢？ 对JS文件来说，我们最好的方式是不作任何特殊处理。上面的代码其实已经可以正常打包模块了。那么是怎么做到的呢？
 
